@@ -1,14 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int main() {
-    int steps = 3;
-    double start_ulying = 100;
-    double strike = 100;
-    double q = 0.5286;
-    double u = 1.1;
-    double risk_free_rate = 0.01;
-    double timestep = 1;
+double calculate_option_price(
+    int steps, double start_ulying, double strike, double q, double u, double risk_free_rate, double timestep)
+{
     vector<vector<double>> prices;
     vector<double> final_prices;
     for(int i = 0; i <= steps; i++) {
@@ -29,6 +24,18 @@ int main() {
         prices.push_back(price_row);
     }
     double calculated_price = prices.at(prices.size() - 1).at(0);
-    cout << calculated_price << '\n';
+    return calculated_price;
+}
+
+int main() {
+    int steps = 3;
+    double start_ulying = 100;
+    double strike = 100;
+    double q = 0.5286;
+    double u = 1.1;
+    double risk_free_rate = 0.01;
+    double timestep = 1;
+    double option_price = calculate_option_price(steps, start_ulying, strike, q, u, risk_free_rate, timestep);
+    cout << option_price << '\n';
     return 0;
 }
