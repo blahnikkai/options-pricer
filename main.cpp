@@ -1,29 +1,44 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+struct Moment {
+    double option_price;
+    double underlying;
+    double shares;
+    double bank_bal;
+};
+
 double calculate_option_price(
     int steps, double start_ulying, double strike, double q, double u, double risk_free_rate, double timestep)
 {
-    vector<vector<double>> prices;
-    vector<double> final_prices;
+    vector<vector<Moment>> moments;
+    vector<Moment> final_moments;
     for(int i = 0; i <= steps; i++) {
         int worst = -steps;
-        double ulying = start_ulying * pow(u, worst + 2 * i);
-        double val = max(ulying - strike, (double)0);
-        final_prices.push_back(val);
+        double underlying = start_ulying * pow(u, worst + 2 * i);
+        double option_price = max(underlying - strike, 0.0);
+        double shares = 1;
+        double bank_bal = option_price - underlying;
+        final_moments.push_back({option_price, underlying, shares, bank_bal});
     }
-    prices.push_back(final_prices);
+    moments.push_back(final_moments);
     for(int i = 0; i < steps; i++) {
-        vector<double> price_row;
+        vector<Moment> moment_row;
         for(int j = 0; j < steps - i; j++) {
-            double d_val = prices.at(prices.size() - 1).at(j);
-            double u_val = prices.at(prices.size() - 1).at(j + 1);
-            double val = exp(-timestep * risk_free_rate) * (q * u_val + (1 - q) * d_val);
-            price_row.push_back(val);
+            Moment d_moment = moments.at(i).at(j);
+            Moment u_moment = moments.at(i).at(j + 1);
+            double rate_discount = exp(-timestep * risk_free_rate);
+            double option_price = rate_discount * (q * u_moment.option_price + (1 - q) * d_moment.option_price);
+            // double underlying = q * u_moment.underlying + (1 - q) * d_moment.underlying;
+            double underlying = -1;
+            double shares = -1;
+            double bank_bal = -1;
+            moment_row.push_back({option_price, underlying, shares, bank_bal});
+
         }
-        prices.push_back(price_row);
+        moments.push_back(moment_row);
     }
-    double calculated_price = prices.at(prices.size() - 1).at(0);
+    double calculated_price = moments.at(moments.size() - 1).at(0).option_price;
     return calculated_price;
 }
 
