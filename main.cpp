@@ -10,17 +10,17 @@ struct Moment {
 
 // time values (time_to_expiry, risk_free_rate, volatility) should be in the same units
 double calc_binomial(
-    double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps)
-{
+    double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps
+) {
     double timestep = time_to_expiry / steps;
     double u = exp(vol * timestep);
     double d = 1 / u;
     vector<vector<Moment>> moments;
     vector<Moment> final_moments;
     // continuous
-    // double lambda = exp(timestep * risk_free_rate);
+    double lambda = exp(timestep * risk_free_rate);
     // discrete
-    double lambda = pow(1 + risk_free_rate, timestep);
+    // double lambda = pow(1 + risk_free_rate, timestep);
     double q = (lambda * u - 1) / (u * u - 1);
     for(int i = 0; i <= steps; i++) {
         int worst = -steps;
@@ -54,17 +54,81 @@ double calc_vol_from_desired_u(double u, double timestep) {
     return log(u) / sqrt(timestep);
 }
 
-int main() {
+double normal_cdf(double x) {
+    return 0.5 * erfc(-x * sqrt(0.5));
+}
+
+double calc_bs(
+    double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol
+) {
+    double d1 = (log(start_ulying / strike) + time_to_expiry * (risk_free_rate + 0.5 * pow(vol, 2))) / (vol * sqrt(time_to_expiry));
+    double a = start_ulying * normal_cdf(d1);
+    double b = exp(-risk_free_rate * time_to_expiry) * strike * normal_cdf(d1 - vol * sqrt(time_to_expiry));
+    double bs_price = a - b;
+    return bs_price;
+}
+
+double simulate_monte_carlo(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps) {
+    random_device rd{};
+    mt19937 gen{rd()};
+    double timestep = time_to_expiry / steps;
+    normal_distribution<double> norm(0, pow(timestep, 0.5));
+    double s = start_ulying;
+    for(int i = 0; i < steps; i++) {
+        double dw = norm(gen);
+        double ds = s * (risk_free_rate * timestep + vol * dw);
+        s += ds;
+    }
+    double final_val = max(0.0, s - strike);
+    double discounted = pow(1 + risk_free_rate, -time_to_expiry) * final_val;
+    return discounted;
+}
+
+double calc_monte_carlo(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps, int num_sims) {
+    double total = 0;
+    for(int i = 0; i < num_sims; i++) {
+        total += simulate_monte_carlo(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);
+    }
+    double mean = total / num_sims;
+    return mean;
+}
+
+
+void compare_prices() {
     double start_ulying = 100;
     double strike = 100;
-    double time_to_expiry = 3;
-    double risk_free_rate = 0.01;
+    double time_to_expiry = 4;
+    double risk_free_rate = 0.0075;
 
-    int steps = 3;
-    double u = 1.1;
-    double vol = calc_vol_from_desired_u(u, time_to_expiry / steps);
+    int steps = 4;
+    double vol = calc_vol_from_desired_u(1.0749, time_to_expiry / 4);
+    // double vol = 0.04;
 
-    double option_price = calc_binomial(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);
-    cout << option_price << '\n';
+    double bin_price = calc_binomial(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);
+    cout << bin_price << '\n';
+
+    double bs_price = calc_bs(start_ulying, strike, time_to_expiry, risk_free_rate, vol);
+    cout << bs_price << '\n';
+
+    double monte_carlo_price = calc_monte_carlo(start_ulying, strike, time_to_expiry, risk_free_rate, vol, 1000, 1000);
+    cout << monte_carlo_price << '\n';
+}
+
+void test_monte_carlo() {
+    double start_ulying = 100;
+    double strike = 100;
+    double time_to_expiry = 1;
+    double risk_free_rate = 0.015;
+    double vol = 0.32;
+
+    double bs_price = calc_bs(start_ulying, strike, time_to_expiry, risk_free_rate, vol);
+    cout << bs_price << '\n';
+
+    double monte_carlo_price = calc_monte_carlo(start_ulying, strike, time_to_expiry, risk_free_rate, vol, 100, 1'000'000);
+    cout << monte_carlo_price << '\n';
+}
+
+int main() {
+    test_monte_carlo();
     return 0;
 }
