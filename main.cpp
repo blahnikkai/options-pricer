@@ -13,14 +13,16 @@ double calc_binomial(
     double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps
 ) {
     double timestep = time_to_expiry / steps;
-    double u = exp(vol * timestep);
+    double u = exp(vol * sqrt(timestep));
     double d = 1 / u;
     vector<vector<Moment>> moments;
     vector<Moment> final_moments;
+
     // continuous
     double lambda = exp(timestep * risk_free_rate);
     // discrete
     // double lambda = pow(1 + risk_free_rate, timestep);
+
     double q = (lambda * u - 1) / (u * u - 1);
     for(int i = 0; i <= steps; i++) {
         int worst = -steps;
@@ -72,7 +74,7 @@ double simulate_monte_carlo(double start_ulying, double strike, double time_to_e
     random_device rd{};
     mt19937 gen{rd()};
     double timestep = time_to_expiry / steps;
-    normal_distribution<double> norm(0, pow(timestep, 0.5));
+    normal_distribution<double> norm(0, sqrt(timestep));
     double s = start_ulying;
     for(int i = 0; i < steps; i++) {
         double dw = norm(gen);
@@ -80,7 +82,7 @@ double simulate_monte_carlo(double start_ulying, double strike, double time_to_e
         s += ds;
     }
     double final_val = max(0.0, s - strike);
-    double discounted = pow(1 + risk_free_rate, -time_to_expiry) * final_val;
+    double discounted = final_val * exp(-risk_free_rate * time_to_expiry);
     return discounted;
 }
 
@@ -93,25 +95,20 @@ double calc_monte_carlo(double start_ulying, double strike, double time_to_expir
     return mean;
 }
 
-
-void compare_prices() {
+void test_binomial() {
     double start_ulying = 100;
     double strike = 100;
-    double time_to_expiry = 4;
-    double risk_free_rate = 0.0075;
+    double time_to_expiry = 1;
+    double risk_free_rate = 0.015;
+    double vol = 0.32;
 
-    int steps = 4;
-    double vol = calc_vol_from_desired_u(1.0749, time_to_expiry / 4);
-    // double vol = 0.04;
-
-    double bin_price = calc_binomial(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);
-    cout << bin_price << '\n';
+    int steps = 10'000;
 
     double bs_price = calc_bs(start_ulying, strike, time_to_expiry, risk_free_rate, vol);
     cout << bs_price << '\n';
 
-    double monte_carlo_price = calc_monte_carlo(start_ulying, strike, time_to_expiry, risk_free_rate, vol, 1000, 1000);
-    cout << monte_carlo_price << '\n';
+    double bin_price = calc_binomial(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);
+    cout << bin_price << '\n';
 }
 
 void test_monte_carlo() {
@@ -129,6 +126,6 @@ void test_monte_carlo() {
 }
 
 int main() {
-    test_monte_carlo();
+    test_binomial();
     return 0;
 }
