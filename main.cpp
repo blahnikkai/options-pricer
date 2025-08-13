@@ -9,7 +9,7 @@ struct Moment {
 };
 
 // time values (time_to_expiry, risk_free_rate, volatility) should be in the same units
-double calc_binomial(
+double calc_bin(
     double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps
 ) {
     double timestep = time_to_expiry / steps;
@@ -95,37 +95,27 @@ double calc_monte_carlo(double start_ulying, double strike, double time_to_expir
     return mean;
 }
 
-void test_binomial() {
+void compare_prices() {
     double start_ulying = 100;
-    double strike = 100;
-    double time_to_expiry = 1;
-    double risk_free_rate = 0.015;
-    double vol = 0.32;
-
-    int steps = 10'000;
-
-    double bs_price = calc_bs(start_ulying, strike, time_to_expiry, risk_free_rate, vol);
-    cout << bs_price << '\n';
-
-    double bin_price = calc_binomial(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);
-    cout << bin_price << '\n';
-}
-
-void test_monte_carlo() {
-    double start_ulying = 100;
-    double strike = 100;
+    double strike = 95;
     double time_to_expiry = 1;
     double risk_free_rate = 0.015;
     double vol = 0.32;
 
     double bs_price = calc_bs(start_ulying, strike, time_to_expiry, risk_free_rate, vol);
-    cout << bs_price << '\n';
+    cout << "Black Scholes Price:\t" << bs_price << '\n';
 
-    double monte_carlo_price = calc_monte_carlo(start_ulying, strike, time_to_expiry, risk_free_rate, vol, 100, 1'000'000);
-    cout << monte_carlo_price << '\n';
+    int bin_steps = 10'000;
+    double bin_price = calc_bin(start_ulying, strike, time_to_expiry, risk_free_rate, vol, bin_steps);
+    cout << "Binomial Tree Price:\t" << bin_price << '\n';
+
+    int monte_carlo_steps = 100;
+    int monte_carlo_num_sims = 1'000'000;
+    double monte_carlo_price = calc_monte_carlo(start_ulying, strike, time_to_expiry, risk_free_rate, vol, monte_carlo_steps, monte_carlo_num_sims);
+    cout << "Monte Carlo Price:\t" << monte_carlo_price << '\n';
 }
 
 int main() {
-    test_binomial();
+    compare_prices();
     return 0;
 }
