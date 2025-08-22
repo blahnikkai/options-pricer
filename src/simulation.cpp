@@ -1,18 +1,22 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <cmath>
+#include <iostream>
+#include <random>
+#include <vector>
 
-struct Moment {
-    double option_price;
-    double underlying;
-    double shares;
-    double bank_bal;
-};
+#include "simulation.h"
+#include "utils.h"
+#include "Moment.h"
+
+using std::vector, std::sqrt, std::max, std::cout;
+using std::random_device, std::mt19937, std::normal_distribution;
 
 // time values (time_to_expiry, risk_free_rate, volatility) should be in the same units
-double calc_bin(
+double simulation::calc_binary(
     double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps
 ) {
     double timestep = time_to_expiry / steps;
+    // u = up move
+    // d = 1 / u = down move
     double u = exp(vol * sqrt(timestep));
     double d = 1 / u;
     vector<vector<Moment>> moments;
@@ -52,25 +56,17 @@ double calc_bin(
     return calculated_price;
 }
 
-double calc_vol_from_desired_u(double u, double timestep) {
-    return log(u) / sqrt(timestep);
-}
-
-double normal_cdf(double x) {
-    return 0.5 * erfc(-x * sqrt(0.5));
-}
-
-double calc_bs(
+double simulation::calc_black_scholes(
     double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol
 ) {
     double d1 = (log(start_ulying / strike) + time_to_expiry * (risk_free_rate + 0.5 * pow(vol, 2))) / (vol * sqrt(time_to_expiry));
-    double a = start_ulying * normal_cdf(d1);
-    double b = exp(-risk_free_rate * time_to_expiry) * strike * normal_cdf(d1 - vol * sqrt(time_to_expiry));
+    double a = start_ulying * utils::normal_cdf(d1);
+    double b = exp(-risk_free_rate * time_to_expiry) * strike * utils::normal_cdf(d1 - vol * sqrt(time_to_expiry));
     double bs_price = a - b;
     return bs_price;
 }
 
-double simulate_monte_carlo(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps) {
+double simulation::simulate_one_monte_carlo_trial(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps) {
     random_device rd{};
     mt19937 gen{rd()};
     double timestep = time_to_expiry / steps;
@@ -86,36 +82,11 @@ double simulate_monte_carlo(double start_ulying, double strike, double time_to_e
     return discounted;
 }
 
-double calc_monte_carlo(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps, int num_sims) {
+double simulation::calc_monte_carlo(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps, int num_sims) {
     double total = 0;
     for(int i = 0; i < num_sims; i++) {
-        total += simulate_monte_carlo(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);
+        total += simulate_one_monte_carlo_trial(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);
     }
     double mean = total / num_sims;
     return mean;
-}
-
-void compare_prices() {
-    double start_ulying = 100;
-    double strike = 95;
-    double time_to_expiry = 1;
-    double risk_free_rate = 0.015;
-    double vol = 0.32;
-
-    double bs_price = calc_bs(start_ulying, strike, time_to_expiry, risk_free_rate, vol);
-    cout << "Black Scholes Price:\t" << bs_price << '\n';
-
-    int bin_steps = 10'000;
-    double bin_price = calc_bin(start_ulying, strike, time_to_expiry, risk_free_rate, vol, bin_steps);
-    cout << "Binomial Tree Price:\t" << bin_price << '\n';
-
-    int monte_carlo_steps = 100;
-    int monte_carlo_num_sims = 1'000'000;
-    double monte_carlo_price = calc_monte_carlo(start_ulying, strike, time_to_expiry, risk_free_rate, vol, monte_carlo_steps, monte_carlo_num_sims);
-    cout << "Monte Carlo Price:\t" << monte_carlo_price << '\n';
-}
-
-int main() {
-    compare_prices();
-    return 0;
 }

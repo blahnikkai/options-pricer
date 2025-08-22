@@ -1,7 +1,0 @@
-u
-d = 1 / u
-g = prob of u
-r = risk free rate
-k = strike
-delta t = time step
-sigma = volatility
