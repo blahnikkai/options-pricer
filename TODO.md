@@ -1,0 +1,2 @@
+- Add support for puts
+- Add put vs call selection to the simulation functions
