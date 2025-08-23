@@ -1,7 +1,7 @@
 #include "argparse/argparse.hpp"
 #include <iostream>
 
-#include "simulation.h"
+#include "pricing.h"
 
 int main(int argc, char ** argv) {
 
@@ -48,7 +48,7 @@ int main(int argc, char ** argv) {
         std::exit(1);
     }
 
-    double black_scholes = simulation::calc_black_scholes(u, k, t, r, v);
+    double black_scholes = pricing::calc_black_scholes(u, k, t, r, v);
     std::cout << black_scholes << "\n";
 
     return 0;

@@ -4,24 +4,24 @@ project(OptionsPricingModel)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(
-        test_simulation
+        test_pricing
 
-        src/test_simulation.cpp
+        src/test_pricing.cpp
         src/Moment.h
-        src/simulation.cpp
-        src/simulation.h
+        src/pricing.cpp
+        src/pricing.h
         src/utils.cpp
         src/utils.h
 )
 
 add_executable(
-        cli
+        options_pricer_cli
 
         src/cli.cpp
         src/argparse/argparse.hpp
         src/Moment.h
-        src/simulation.cpp
-        src/simulation.h
+        src/pricing.cpp
+        src/pricing.h
         src/utils.cpp
         src/utils.h
 )

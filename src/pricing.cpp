@@ -3,7 +3,7 @@
 #include <random>
 #include <vector>
 
-#include "simulation.h"
+#include "pricing.h"
 #include "utils.h"
 #include "Moment.h"
 
@@ -11,7 +11,7 @@ using std::vector, std::sqrt, std::max, std::cout;
 using std::random_device, std::mt19937, std::normal_distribution;
 
 // time values (time_to_expiry, risk_free_rate, volatility) should be in the same units
-double simulation::calc_binary(
+double pricing::calc_binary(
     double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps
 ) {
     double timestep = time_to_expiry / steps;
@@ -56,7 +56,7 @@ double simulation::calc_binary(
     return calculated_price;
 }
 
-double simulation::calc_black_scholes(
+double pricing::calc_black_scholes(
     double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol
 ) {
     double d1 = (log(start_ulying / strike) + time_to_expiry * (risk_free_rate + 0.5 * pow(vol, 2))) / (vol * sqrt(time_to_expiry));
@@ -66,7 +66,7 @@ double simulation::calc_black_scholes(
     return bs_price;
 }
 
-double simulation::simulate_one_monte_carlo_trial(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps) {
+double pricing::simulate_one_monte_carlo_trial(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps) {
     random_device rd{};
     mt19937 gen{rd()};
     double timestep = time_to_expiry / steps;
@@ -82,7 +82,7 @@ double simulation::simulate_one_monte_carlo_trial(double start_ulying, double st
     return discounted;
 }
 
-double simulation::calc_monte_carlo(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps, int num_sims) {
+double pricing::calc_monte_carlo(double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps, int num_sims) {
     double total = 0;
     for(int i = 0; i < num_sims; i++) {
         total += simulate_one_monte_carlo_trial(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps);

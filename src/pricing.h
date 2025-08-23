@@ -1,6 +1,6 @@
 #pragma once
 
-namespace simulation {
+namespace pricing {
     double calc_black_scholes(
         double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol
     );
