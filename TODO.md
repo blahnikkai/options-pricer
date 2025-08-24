@@ -1,2 +1,5 @@
-- Add put vs call and american vs european selection to the cli
 - Idk if the perfect hedging calculation still works for American options
+- Print what you are calculating in cli
+- Find different example values that have a different price for American calls than European
+- Unify cli and test values?
+- Consider reordering cli options and args to pricing functions into market (risk free rate), underlying, and options contract itself (strike, time to expiry)

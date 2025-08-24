@@ -52,6 +52,20 @@ int main(int argc, char ** argv) {
         .help("Takes two arguments, the number of steps in a monte carlo simulation and the number of simulations to perform.")
         .store_into(monte_carlo_args);
 
+    bool put;
+    arg_parser
+        .add_argument("-p", "--put")
+        .flag()
+        .help("Flag to select a long put contract")
+        .store_into(put);
+
+    bool american;
+    arg_parser
+        .add_argument("-a", "--american")
+        .flag()
+        .help("Flag to select an American option, which can be exercised at any time. This extra optionality makes them more expensive.")
+        .store_into(american);
+
     try {
         arg_parser.parse_args(argc, argv);
     }
@@ -63,16 +77,18 @@ int main(int argc, char ** argv) {
 
     r /= 100;
 
-    double black_scholes_price = pricing::calc_black_scholes(u, k, t, r, v);
-    std::cout << "Black Scholes Price:\t" << black_scholes_price << '\n';
+    if(!american) {
+        double black_scholes_price = pricing::calc_black_scholes(u, k, t, r, v, !put);
+        std::cout << "Black Scholes Price:\t" << black_scholes_price << '\n';
+    }
 
     if(arg_parser.is_used("-b")) {
-        double binomial_price = pricing::calc_binomial(u, k, t, r, v, binomial_steps);
+        double binomial_price = pricing::calc_binomial(u, k, t, r, v, binomial_steps, !put, !american);
         std::cout << "Binomial Tree Price:\t" << binomial_price << '\n';
     }
 
-    if(arg_parser.is_used("-m")) {
-        double monte_carlo_price = pricing::calc_monte_carlo(u, k, t, r, v, monte_carlo_args.at(0), monte_carlo_args.at(1));
+    if(!american && arg_parser.is_used("-m")) {
+        double monte_carlo_price = pricing::calc_monte_carlo(u, k, t, r, v, monte_carlo_args.at(0), monte_carlo_args.at(1), !put);
         std::cout << "Monte Carlo Price:\t" << monte_carlo_price << '\n';
     }
 
