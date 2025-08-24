@@ -1,2 +1,2 @@
-- Add support for puts
-- Add put vs call selection to the simulation functions
+- Add put vs call and american vs european selection to the cli
+- Idk if the perfect hedging calculation still works for American options
