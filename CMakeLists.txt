@@ -7,24 +7,28 @@ add_executable(
         test_pricing
 
         src/test_pricing.cpp
-        src/Moment.h
         src/pricing.cpp
-        src/pricing.h
         src/utils.cpp
-        src/utils.h
 )
 
 add_executable(
         options_pricer_cli
 
         src/cli.cpp
-        src/Moment.h
         src/pricing.cpp
-        src/pricing.h
         src/utils.cpp
-        src/utils.h
 )
 target_include_directories(options_pricer_cli PRIVATE ${CMAKE_SOURCE_DIR}/src/include)
+
+add_executable(
+        api
+
+        src/api.cpp
+        src/pricing.cpp
+        src/utils.cpp
+)
+target_link_libraries(api PRIVATE zmq)
+target_include_directories(api PRIVATE ${CMAKE_SOURCE_DIR}/src/include)
 
 add_executable(
         test_zmq

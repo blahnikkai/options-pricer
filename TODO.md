@@ -1,3 +1,5 @@
 - Idk if the perfect hedging calculation still works for American options
 - Find values that have a different price for American calls than European (is the code bugged?)
 - Unify cli and test values?
+- Add input error handling in api.cpp
+- Invert european and call parameters to match cli and api values (american and put)
