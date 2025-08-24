@@ -15,7 +15,7 @@ make options_pricer_cli
 
 ## Running
 
-The below will run the Black-Scholes formula for a European call option 
+The below will run the Black-Scholes formula for a European call option
 1. Underlying price 100.30
 2. Strike price 105.50
 3. 2.4 units of time to expiry
@@ -25,6 +25,8 @@ The below will run the Black-Scholes formula for a European call option
 ```zsh
 ./options_pricer_cli -u 100.30 -s 105.50 -t 2.4 -r 0.045 -v 0.65 -b 10000 -m 100 1000000
 ```
+
+Note that time values (time_to_expiry, risk_free_rate, volatility) should be in the same units
 
 ## Flags
 `-p, --put` to calculate prices for a put instead of a call  
