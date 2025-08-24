@@ -75,17 +75,29 @@ int main(int argc, char ** argv) {
         std::exit(1);
     }
 
+    std::string option_country = american ? "American" : "European";
+    std::string put_or_call = put ? "put" : "call";
+    std::cout << "Calculating the price of one " << option_country << " " << put_or_call << " with the following parameters\n";
+    std::cout << "\tunderlying price = " << u << "\n";
+    std::cout << "\tstrike price = " << k << "\n";
+    std::cout << "\ttime to expiry = " << t << "\n";
+    std::cout << "\trisk free rate = " << r << " (" << (r * 100) << "%)\n";
+    std::cout << "\tvolatility = " << v << " (" << v * 100 << "%)\n";
+
     if(!american) {
+        std::cout << "Calculating the exact price with the Black-Scholes formula\n";
         double black_scholes_price = pricing::calc_black_scholes(u, k, t, r, v, !put);
         std::cout << "Black Scholes Price:\t" << black_scholes_price << '\n';
     }
 
     if(arg_parser.is_used("-b")) {
+        std::cout << "Approximating the price with a binomial tree with " << binomial_steps << " steps.\n";
         double binomial_price = pricing::calc_binomial(u, k, t, r, v, binomial_steps, !put, !american);
         std::cout << "Binomial Tree Price:\t" << binomial_price << '\n';
     }
 
     if(!american && arg_parser.is_used("-m")) {
+        std::cout << "Approximating the price with " << monte_carlo_args.at(1) << " Monte Carlo simulations of " << monte_carlo_args.at(0) << " steps each.\n";
         double monte_carlo_price = pricing::calc_monte_carlo(u, k, t, r, v, monte_carlo_args.at(0), monte_carlo_args.at(1), !put);
         std::cout << "Monte Carlo Price:\t" << monte_carlo_price << '\n';
     }

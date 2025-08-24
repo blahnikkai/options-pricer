@@ -92,8 +92,8 @@ double pricing::calc_binomial(
 }
 
 double pricing::calc_monte_carlo(
-    double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps, int num_sims, bool call)
-{
+    double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps, int num_sims, bool call
+) {
     double total = 0;
     for(int i = 0; i < num_sims; i++) {
         total += simulate_one_monte_carlo_trial(start_ulying, strike, time_to_expiry, risk_free_rate, vol, steps, call);
