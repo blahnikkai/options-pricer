@@ -75,8 +75,6 @@ int main(int argc, char ** argv) {
         std::exit(1);
     }
 
-    r /= 100;
-
     if(!american) {
         double black_scholes_price = pricing::calc_black_scholes(u, k, t, r, v, !put);
         std::cout << "Black Scholes Price:\t" << black_scholes_price << '\n';
