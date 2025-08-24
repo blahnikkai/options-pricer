@@ -5,7 +5,7 @@ namespace pricing {
         double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol
     );
 
-    double calc_binary(
+    double calc_binomial(
         double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps
     );
 

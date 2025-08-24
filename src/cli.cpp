@@ -39,6 +39,19 @@ int main(int argc, char ** argv) {
         .help("The volatility of the underlying asset with time horizon equal to a unit time.")
         .store_into(v);
 
+    int binomial_steps;
+    arg_parser
+        .add_argument("-b", "--binomial-steps")
+        .help("The number of steps in the binomial tree pricing model.")
+        .store_into(binomial_steps);
+
+    std::vector<int> monte_carlo_args;
+    arg_parser
+        .add_argument("-m", "--monte-carlo")
+        .nargs(2)
+        .help("Takes two arguments, the number of steps in a monte carlo simulation and the number of simulations to perform.")
+        .store_into(monte_carlo_args);
+
     try {
         arg_parser.parse_args(argc, argv);
     }
@@ -50,8 +63,18 @@ int main(int argc, char ** argv) {
 
     r /= 100;
 
-    double black_scholes = pricing::calc_black_scholes(u, k, t, r, v);
-    std::cout << black_scholes << "\n";
+    double black_scholes_price = pricing::calc_black_scholes(u, k, t, r, v);
+    std::cout << "Black Scholes Price:\t" << black_scholes_price << '\n';
+
+    if(arg_parser.is_used("-b")) {
+        double binomial_price = pricing::calc_binomial(u, k, t, r, v, binomial_steps);
+        std::cout << "Binomial Tree Price:\t" << binomial_price << '\n';
+    }
+
+    if(arg_parser.is_used("-m")) {
+        double monte_carlo_price = pricing::calc_monte_carlo(u, k, t, r, v, monte_carlo_args.at(0), monte_carlo_args.at(1));
+        std::cout << "Monte Carlo Price:\t" << monte_carlo_price << '\n';
+    }
 
     return 0;
 }

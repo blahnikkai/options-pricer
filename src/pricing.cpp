@@ -11,7 +11,7 @@ using std::vector, std::sqrt, std::max, std::cout;
 using std::random_device, std::mt19937, std::normal_distribution;
 
 // time values (time_to_expiry, risk_free_rate, volatility) should be in the same units
-double pricing::calc_binary(
+double pricing::calc_binomial(
     double start_ulying, double strike, double time_to_expiry, double risk_free_rate, double vol, int steps
 ) {
     double timestep = time_to_expiry / steps;
